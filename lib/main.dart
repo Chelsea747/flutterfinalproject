@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:flutter_application_final/model/meme.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -16,7 +17,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final controller = FloatingSearchBarController();
-  List<String> urls = [];
+  List<Meme> memes = [];
   var searchBarHint = 'Search meme category...';
 
   /// list of suggestions
@@ -44,10 +45,10 @@ class _HomePageState extends State<HomePage> {
           children: [
             // you need a listview to provide the index
             ListView.builder(
-              itemCount: urls.length,
+              itemCount: memes.length,
               scrollDirection: Axis.vertical,
               itemBuilder: (context, index) =>
-                  Image.network(urls[index], height: 640, width: 480),
+                  Image.network(memes[index].url, height: 640, width: 480),
             ),
             buildFloatingSearchBar(context)
           ],
@@ -121,13 +122,14 @@ class _HomePageState extends State<HomePage> {
 
     http.get(uri).then((response) {
       var json = jsonDecode(response.body);
-      List<dynamic> memes = json['memes'];
 
       print(uri);
-      for (var item in memes) {
-        urls.add(item['url']);
+
+      memes.clear();
+      for (var meme in json['memes']) {
+        memes.add(Meme.fromJson(meme));
       }
-      searchBarHint = 'start scrolling! ...restart to search again';
+
       setState(() {});
     });
   }
