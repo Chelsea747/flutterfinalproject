@@ -1,12 +1,16 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter_application_final/model/meme.dart';
+import 'package:flutter_application_final/widget/meme_card.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-main() => runApp(MaterialApp(home: HomePage()));
+main() => runApp(MaterialApp(
+      home: HomePage(),
+      theme: ThemeData(useMaterial3: true),
+    ));
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -47,8 +51,7 @@ class _HomePageState extends State<HomePage> {
             ListView.builder(
               itemCount: memes.length,
               scrollDirection: Axis.vertical,
-              itemBuilder: (context, index) =>
-                  Image.network(memes[index].url, height: 640, width: 480),
+              itemBuilder: (context, index) => MemeCard(meme: memes[index]),
             ),
             buildFloatingSearchBar(context)
           ],
@@ -134,20 +137,3 @@ class _HomePageState extends State<HomePage> {
     });
   }
 }
-
-/*
-ListView.builder(
-              itemCount: urls.length,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Image.network(urls[index], height: 640, width: 480),
-                    ],
-                  ),
-                );
-              }),
-*/
-
