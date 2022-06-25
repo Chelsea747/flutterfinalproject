@@ -18,6 +18,17 @@ class _HomePageState extends State<HomePage> {
   final controller = FloatingSearchBarController();
   List<String> urls = [];
   var searchBarHint = 'Search meme category...';
+
+  /// list of suggestions
+  List<String> subreddits = [
+    'memes',
+    'dankmemes',
+    'wholesomememes',
+    'funny',
+    'meirl',
+    'memeeconomy',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -51,8 +62,7 @@ class _HomePageState extends State<HomePage> {
     return FloatingSearchBar(
       hint: searchBarHint,
       controller: controller,
-      scrollPadding: const EdgeInsets.only(top: 1000000000, bottom: 0),
-      transitionDuration: const Duration(milliseconds: 70),
+      transitionDuration: const Duration(milliseconds: 700),
       transitionCurve: Curves.easeInOut,
       physics: const BouncingScrollPhysics(),
       axisAlignment: isPortrait ? 0.0 : -1.0,
@@ -72,29 +82,31 @@ class _HomePageState extends State<HomePage> {
       // animating between opened and closed stated.
       transition: CircularFloatingSearchBarTransition(),
       actions: [
-        FloatingSearchBarAction(
-          showIfOpened: false,
-          child: CircularButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-        ),
-        FloatingSearchBarAction.searchToClear(
-          showIfClosed: true,
-        ),
+        FloatingSearchBarAction.searchToClear(showIfClosed: true),
       ],
 
+      /// The list of suggestions to be shown in the search bar.
       builder: (context, transition) {
         return ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Material(
-            color: Colors.black,
-            elevation: 4.0,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: Colors.accents.map((color) {
-                return Container(height: 112, color: color);
-              }).toList(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(
+              subreddits.length,
+              (index) => Container(
+                color: Colors.accents[index].shade100,
+                child: ListTile(
+                  title: Text(
+                    subreddits[index],
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    controller.query = subreddits[index];
+                    controller.close();
+                    getMeme(subreddits[index]);
+                  },
+                ),
+              ),
             ),
           ),
         );
@@ -102,18 +114,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  getMeme(query) {
-    // ignore: avoid_print
-    print(query); //printing here also works
+  void getMeme(String query) {
+    //printing here also works
+    print(query);
     Uri uri = Uri.parse('https://meme-api.herokuapp.com/gimme/$query/30');
-    //run in background
+
     http.get(uri).then((response) {
       var json = jsonDecode(response.body);
       List<dynamic> memes = json['memes'];
-      // ignore: avoid_print
+
       print(uri);
       for (var item in memes) {
-        //huh printing query works but it wont print the uri
         urls.add(item['url']);
       }
       searchBarHint = 'start scrolling! ...restart to search again';
@@ -121,17 +132,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 }
-
-
-
-
-
-
-
-
-
-
-
 
 /*
 ListView.builder(
@@ -148,7 +148,4 @@ ListView.builder(
                 );
               }),
 */
-
-  
-
 
