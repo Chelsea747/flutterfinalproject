@@ -7,9 +7,14 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+// target: https://cdn.dribbble.com/users/745402/screenshots/9317698/media/9a8bf1434f4ddbe4fbaabb6f9f253791.png?compress=1&resize=1000x750&vertical=top
+
 main() => runApp(MaterialApp(
       home: HomePage(),
-      theme: ThemeData(useMaterial3: true),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.dark(),
+      ),
     ));
 
 class HomePage extends StatefulWidget {
@@ -26,12 +31,16 @@ class _HomePageState extends State<HomePage> {
 
   /// list of suggestions
   List<String> subreddits = [
-    'memes',
-    'dankmemes',
-    'wholesomememes',
-    'funny',
-    'meirl',
-    'memeeconomy',
+    'Pics',
+    'DamnThatsInteresting',
+    'Wallpapers',
+    'Art',
+    'ProgrammerHumor',
+    'Memes',
+    'DankMemes',
+    'WholesomeMemes',
+    'Funny',
+    'Meirl',
   ];
 
   @override
@@ -85,9 +94,7 @@ class _HomePageState extends State<HomePage> {
       // Specify a custom transition to be used for
       // animating between opened and closed stated.
       transition: CircularFloatingSearchBarTransition(),
-      actions: [
-        FloatingSearchBarAction.searchToClear(showIfClosed: true),
-      ],
+      actions: [FloatingSearchBarAction.searchToClear(showIfClosed: true)],
 
       /// The list of suggestions to be shown in the search bar.
       builder: (context, transition) {
@@ -98,7 +105,7 @@ class _HomePageState extends State<HomePage> {
             children: List.generate(
               subreddits.length,
               (index) => Container(
-                color: Colors.accents[index].shade100,
+                color: Colors.primaries[index % Colors.primaries.length],
                 child: ListTile(
                   title: Text(
                     subreddits[index],
@@ -119,14 +126,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   void getMeme(String query) {
-    //printing here also works
-    print(query);
-    Uri uri = Uri.parse('https://meme-api.herokuapp.com/gimme/$query/30');
+    Uri uri = Uri.parse(
+        'https://meme-api.herokuapp.com/gimme/${query.toLowerCase()}/30');
 
     http.get(uri).then((response) {
       var json = jsonDecode(response.body);
-
-      print(uri);
 
       memes.clear();
       for (var meme in json['memes']) {
