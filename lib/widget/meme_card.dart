@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 
 import '../model/meme.dart';
+import 'full_screen_image.dart';
 
 class MemeCard extends StatelessWidget {
   final Meme meme;
@@ -51,9 +52,15 @@ class MemeCard extends StatelessWidget {
             SizedBox(height: 8),
 
             /// Card meme image:
-            Container(
-              color: Colors.black,
+            InkWell(
               child: Image.network(meme.url, height: 640, width: 480),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => FullScreenPage(
+                    child: Image.network(meme.url),
+                  ),
+                ),
+              ),
             ),
 
             SizedBox(height: 8),
