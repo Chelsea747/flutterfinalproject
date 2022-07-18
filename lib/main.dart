@@ -138,6 +138,20 @@ class _HomePageState extends State<HomePage> {
       }
 
       setState(() {});
+    }).onError((error, stackTrace) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text('Could not find this category.'),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () => Navigator.pop(context),
+            )
+          ],
+        ),
+      );
     });
   }
 }
