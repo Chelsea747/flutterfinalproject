@@ -68,7 +68,7 @@ class _HomePageState extends State<HomePage> {
               itemBuilder: (context, index) => MemeCard(meme: memes[index]),
             ),
             buildFloatingSearchBar(context),
-            SizedBox(
+            SizedBox(   //also not sure how this will turn out
               height: 100,
               child: AnimatedList(
                 key: listKey,
