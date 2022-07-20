@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:async';
 import 'package:flutter_application_final/model/meme.dart';
 import 'package:flutter_application_final/widget/meme_card.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
@@ -45,12 +46,29 @@ class _HomePageState extends State<HomePage> {
     'Meirl',
   ];
 
-   GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
+  GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
+  final List<String> animatedListItems = [];
+  int selectedIndex = -1;
 
   @override
   void initState() {
-    super.initState();
     // run anything here before screen shows up:
+    int count = 0;
+    Timer.periodic(Duration(milliseconds: 300), (timer) {
+      animatedListItems.add(subreddits[count]);
+
+      if (listKey.currentState != null) {
+        listKey.currentState!.insertItem(animatedListItems.length - 1,
+            duration: Duration(milliseconds: 300));
+      }
+
+      count += 1;
+      if (count >= subreddits.length) {
+        timer.cancel();
+      }
+    });
+
+    super.initState();
   }
 
   @override
@@ -67,30 +85,42 @@ class _HomePageState extends State<HomePage> {
               scrollDirection: Axis.vertical,
               itemBuilder: (context, index) => MemeCard(meme: memes[index]),
             ),
-            buildFloatingSearchBar(context),
-            SizedBox(   //also not sure how this will turn out
-              height: 100,
-              child: AnimatedList(
-                key: listKey,
-                initialItemCount: 0,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context,index,animation) {
-                  return SlideTransition(
-                    position: animation.drive(Tween(
-                      begin: Offset(1, -1),
-                      end: Offset(0, 0),
-                    )),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: FilterChip(
-                        label: Text(subreddits[index]),
-                        onSelected: (selected) =>  buildFloatingSearchBar(selected), //idk what to put here
-                    ),
-                  );
-                  );
-                },
+
+            Positioned(
+              top: 56,
+              child: SizedBox(
+                height: 48,
+                width: MediaQuery.of(context).size.width,
+                child: AnimatedList(
+                  key: listKey,
+                  initialItemCount: 0,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index, animation) {
+                    return SlideTransition(
+                      position: animation.drive(Tween(
+                        begin: Offset(2, 0),
+                        end: Offset(0, 0),
+                      )),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: FilterChip(
+                          label: Text(subreddits[index]),
+                          selected: selectedIndex == index,
+                          onSelected: (selected) {
+                            if (selected) {
+                              setState(() => selectedIndex = index);
+                              getMeme(subreddits[index]);
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
-            )
+            ),
+
+            buildFloatingSearchBar(context),
           ],
         ),
       ),
@@ -123,33 +153,7 @@ class _HomePageState extends State<HomePage> {
       // animating between opened and closed stated.
       transition: CircularFloatingSearchBarTransition(),
       actions: [FloatingSearchBarAction.searchToClear(showIfClosed: true)],
-
-      /// The list of suggestions to be shown in the search bar.
-      builder: (context, transition) {
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: List.generate(
-              subreddits.length,
-              (index) => Container(
-                color: Colors.primaries[index % Colors.primaries.length],
-                child: ListTile(
-                  title: Text(
-                    subreddits[index],
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onTap: () {
-                    controller.query = subreddits[index];
-                    controller.close();
-                    getMeme(subreddits[index]);
-                  },
-                ),
-              ),
-            ),
-          ),
-        );
-      },
+      builder: (_, __) => SizedBox(),
     );
   }
 
