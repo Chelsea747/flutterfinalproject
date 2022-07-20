@@ -29,6 +29,8 @@ class _HomePageState extends State<HomePage> {
   List<Meme> memes = [];
   var searchBarHint = 'Search meme category...';
 
+  final listController = ScrollController();
+
   /// list of suggestions
   List<String> subreddits = [
     'Pics',
@@ -60,6 +62,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             // you need a listview to provide the index
             ListView.builder(
+              controller: listController,
               itemCount: memes.length,
               scrollDirection: Axis.vertical,
               itemBuilder: (context, index) => MemeCard(meme: memes[index]),
@@ -162,7 +165,24 @@ class _HomePageState extends State<HomePage> {
         memes.add(Meme.fromJson(meme));
       }
 
+      listController.animateTo(0,
+          duration: Duration(milliseconds: 2000), curve: Curves.easeInOut);
+
       setState(() {});
+    }).onError((error, stackTrace) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text('Could not find this category.'),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () => Navigator.pop(context),
+            )
+          ],
+        ),
+      );
     });
   }
 }
