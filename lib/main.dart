@@ -43,6 +43,8 @@ class _HomePageState extends State<HomePage> {
     'Meirl',
   ];
 
+   GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
+
   @override
   void initState() {
     super.initState();
@@ -62,7 +64,30 @@ class _HomePageState extends State<HomePage> {
               scrollDirection: Axis.vertical,
               itemBuilder: (context, index) => MemeCard(meme: memes[index]),
             ),
-            buildFloatingSearchBar(context)
+            buildFloatingSearchBar(context),
+            SizedBox(
+              height: 100,
+              child: AnimatedList(
+                key: listKey,
+                initialItemCount: 0,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context,index,animation) {
+                  return SlideTransition(
+                    position: animation.drive(Tween(
+                      begin: Offset(1, -1),
+                      end: Offset(0, 0),
+                    )),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: FilterChip(
+                        label: Text(subreddits[index]),
+                        onSelected: (selected) =>  buildFloatingSearchBar(selected), //idk what to put here
+                    ),
+                  );
+                  );
+                },
+              ),
+            )
           ],
         ),
       ),
