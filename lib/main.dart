@@ -49,24 +49,12 @@ class _HomePageState extends State<HomePage> {
   GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
   final List<String> animatedListItems = [];
   int selectedIndex = -1;
+  late Timer timer;
 
   @override
   void initState() {
     // run anything here before screen shows up:
-    int count = 0;
-    Timer.periodic(Duration(milliseconds: 300), (timer) {
-      animatedListItems.add(subreddits[count]);
-
-      if (listKey.currentState != null) {
-        listKey.currentState!.insertItem(animatedListItems.length - 1,
-            duration: Duration(milliseconds: 300));
-      }
-
-      count += 1;
-      if (count >= subreddits.length) {
-        timer.cancel();
-      }
-    });
+    insertItems();
 
     super.initState();
   }
@@ -89,12 +77,12 @@ class _HomePageState extends State<HomePage> {
             Positioned(
               top: 56,
               child: SizedBox(
-                height: 48,
+                height: MediaQuery.of(context).size.height * 0.3,
                 width: MediaQuery.of(context).size.width,
                 child: AnimatedList(
                   key: listKey,
                   initialItemCount: 0,
-                  scrollDirection: Axis.horizontal,
+                  scrollDirection: Axis.vertical,
                   itemBuilder: (context, index, animation) {
                     return SlideTransition(
                       position: animation.drive(Tween(
@@ -104,12 +92,12 @@ class _HomePageState extends State<HomePage> {
                       child: Padding(
                         padding: const EdgeInsets.all(4.0),
                         child: FilterChip(
-                          label: Text(subreddits[index]),
-                          selected: selectedIndex == index,
+                          label: Text(animatedListItems[index]),
                           onSelected: (selected) {
                             if (selected) {
-                              setState(() => selectedIndex = index);
-                              getMeme(subreddits[index]);
+                              getMeme(animatedListItems[index]);
+                              clearItems();
+                              setState(() {});
                             }
                           },
                         ),
@@ -188,5 +176,31 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     });
+  }
+
+  void insertItems() {
+    int count = 0;
+    animatedListItems.clear();
+    timer = Timer.periodic(Duration(milliseconds: 300), (timer) {
+      animatedListItems.add(subreddits[count]);
+
+      if (listKey.currentState != null) {
+        listKey.currentState!.insertItem(animatedListItems.length - 1,
+            duration: Duration(milliseconds: 300));
+      }
+
+      count += 1;
+      if (count >= subreddits.length) {
+        timer.cancel();
+      }
+    });
+  }
+
+  void clearItems() {
+    timer.cancel();
+    for (var i = animatedListItems.length - 1; i >= 0; i--) {
+      listKey.currentState!.removeItem(i, (context, animation) => SizedBox());
+    }
+    animatedListItems.clear();
   }
 }
